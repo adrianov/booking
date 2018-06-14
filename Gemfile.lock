@@ -47,7 +47,6 @@ GEM
     annotate (2.7.3)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 13.0)
-    api-pagination (4.7.0)
     arel (9.0.0)
     ast (2.4.0)
     autoprefixer-rails (8.5.1)
@@ -160,6 +159,11 @@ GEM
       ast (~> 2.4.0)
     pg (1.0.0)
     powerpack (0.1.1)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    pry-rails (0.3.6)
+      pry (>= 0.10.4)
     public_suffix (3.0.2)
     puma (3.11.4)
     rack (2.0.5)
@@ -304,7 +308,6 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
-  api-pagination
   autoprefixer-rails
   awesome_print
   better_errors
@@ -320,6 +323,7 @@ DEPENDENCIES
   grape-entity
   jquery-rails
   pg
+  pry-rails
   puma
   rails (~> 5.2.0)
   rspec-rails

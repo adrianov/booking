@@ -23,6 +23,7 @@ gem "uglifier"
 
 # Tools
 gem "awesome_print"
+gem 'pry-rails'
 
 # API
 gem 'grape'
