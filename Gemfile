@@ -25,7 +25,6 @@ gem "uglifier"
 gem "awesome_print"
 
 # API
-gem 'api-pagination'
 gem 'grape'
 gem 'grape-entity'
 
