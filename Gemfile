@@ -24,6 +24,11 @@ gem "uglifier"
 # Tools
 gem "awesome_print"
 
+# API
+gem 'api-pagination'
+gem 'grape'
+gem 'grape-entity'
+
 # Env specific dependencies...
 
 group :development, :test do
