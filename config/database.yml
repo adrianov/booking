@@ -5,6 +5,7 @@ default: &default
   encoding: unicode
   pool: <%= ENV["DB_POOL"].presence || ENV["RAILS_MAX_THREADS"].presence || 5 %>
   timeout: 5000
+  user: postgres
 
 development:
   <<: *default

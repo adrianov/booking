@@ -8,7 +8,6 @@ ruby "2.4.4"
 gem "bootsnap", require: false
 gem "pg"
 gem "puma"
-gem "rack-canonical-host"
 gem "rails", "~> 5.2.0"
 
 # Front-endy
@@ -27,10 +26,6 @@ gem "awesome_print"
 
 # Env specific dependencies...
 
-group :production, :acceptance do
-  gem "rack-timeout"
-end
-
 group :development, :test do
   gem "factory_bot_rails"
   gem "rspec-rails"
@@ -43,8 +38,6 @@ group :development do
   gem "better_errors"
   gem "binding_of_caller"
   gem "dotenv-rails"
-  gem "launchy"
-  gem "listen"
   gem "spring"
   gem "spring-commands-rspec"
   gem "spring-watcher-listen"
