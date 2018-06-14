@@ -1,3 +1,5 @@
+# Time slots for booking
+#
 # == Schema Information
 #
 # Table name: slots
@@ -14,6 +16,14 @@
 #  index_slots_on_end_at    (end_at) UNIQUE
 #  index_slots_on_start_at  (start_at) UNIQUE
 #
-
 class Slot < ApplicationRecord
+  # Create new slots from array of them
+  def self.create_many!(slots)
+    'create_many stub'
+  end
+
+  # Book a slot
+  def self.book!(start_at, end_at)
+    'book stub'
+  end
 end
