@@ -33,7 +33,7 @@ class Slot < ApplicationRecord
         res = create(start_at: slot[:start_at], end_at: slot[:end_at])
         if res.errors.messages.present?
           messages << "Slot start_at: #{slot[:start_at]}, end_at: #{slot[:end_at]} create error: " +
-                      res.errors.messages.map { |k, v| "#{k} #{v.to_sentence}"}.to_sentence
+            res.errors.messages.map {|k, v| "#{k} #{v.to_sentence}"}.to_sentence
         else
           created << res
         end
@@ -42,15 +42,16 @@ class Slot < ApplicationRecord
       # rollback all inserts if any one fails
       raise ActiveRecord::Rollback if messages.present?
     end
-    return {errors: {messages: messages}} if messages.present?
+    return { error: { messages: messages } } if messages.present?
     created
   end
 
   # Book a time slot, identified by `start_at` and `end_at` datetime
   def self.book!(start_at, end_at)
     slot = find_by(start_at: start_at, end_at: end_at)
-    return {errors: {messages: 'Not found'}} if slot.blank?
-    return {errors: {messages: 'Already booked'}} if slot.booked
+    return { error: { messages: ['Not found'] } } if slot.blank?
+    return { error: { messages: ['Already booked'] } } if slot.booked
+    slot.update!(booked: true)
     slot
   end
 

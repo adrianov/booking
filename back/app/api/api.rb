@@ -2,10 +2,12 @@
 class Api < Grape::API
   format :json
 
-  # Pass params as JSON string in request body alongside with request params
+  # Pass params as JSON string in `data` param alongside with other params
   before do
-    parsed_body = JSON.parse(request.body.first)
-    parsed_body.each_pair do |k, v|
+    next if params[:data].blank?
+
+    parsed_data = JSON.parse(params[:data])
+    parsed_data.each_pair do |k, v|
       params[k] = v
     end
   end

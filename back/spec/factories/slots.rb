@@ -17,8 +17,14 @@
 
 FactoryBot.define do
   factory :slot do
-    start_at "2018-06-14 20:00:00"
-    end_at "2018-06-14 21:00:00"
+    start_at "2018-06-14T20:00:00.000Z"
+    end_at "2018-06-14T21:00:00.000Z"
+    booked false
+  end
+
+  factory :slot2, class: Slot do
+    start_at "2018-06-14T21:00:00.000Z"
+    end_at "2018-06-14T22:00:00.000Z"
     booked false
   end
 end
