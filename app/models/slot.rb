@@ -19,20 +19,44 @@
 class Slot < ApplicationRecord
   include Grape::Entity::DSL
 
+  validates :start_at, :end_at, presence: true, uniqueness: true
+  validate :end_after_start
+
   entity :start_at, :end_at, :booked
 
   # Create new time slots from array. Slots being set with `start_at` and `end_at` datetime
   def self.create_many!(slots)
-    slots.each do |slot|
-      create!(slot)
+    messages = []
+    created = []
+    transaction do
+      slots.each do |slot|
+        res = create(start_at: slot[:start_at], end_at: slot[:end_at])
+        if res.errors.messages.present?
+          messages << "Slot start_at: #{slot[:start_at]}, end_at: #{slot[:end_at]} create error: " +
+                      res.errors.messages.map { |k, v| "#{k} #{v.to_sentence}"}.to_sentence
+        else
+          created << res
+        end
+      end
+
+      # rollback all inserts if any one fails
+      raise ActiveRecord::Rollback if messages.present?
     end
+    return {errors: {messages: messages}} if messages.present?
+    created
   end
 
   # Book a time slot, identified by `start_at` and `end_at` datetime
   def self.book!(start_at, end_at)
     slot = find_by(start_at: start_at, end_at: end_at)
-    return {error: {message: 'Not found'}} if slot.blank?
-    return {error: {message: 'Already booked'}} if slot.booked
+    return {errors: {messages: 'Not found'}} if slot.blank?
+    return {errors: {messages: 'Already booked'}} if slot.booked
     slot
+  end
+
+  private
+
+  def end_after_start
+    errors.add :end_at, 'end_at time must be after start_at time' if end_at <= start_at
   end
 end
