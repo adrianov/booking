@@ -21,14 +21,14 @@ class Slot < ApplicationRecord
 
   entity :start_at, :end_at, :booked
 
-  # Create new slots from array of them
+  # Create new time slots from array. Slots being set with `start_at` and `end_at` datetime
   def self.create_many!(slots)
     slots.each do |slot|
       create!(slot)
     end
   end
 
-  # Book a slot
+  # Book a time slot, identified by `start_at` and `end_at` datetime
   def self.book!(start_at, end_at)
     slot = find_by(start_at: start_at, end_at: end_at)
     return {error: {message: 'Not found'}} if slot.blank?
