@@ -1,6 +1,9 @@
 import React from 'react';
 import { render } from 'react-dom';
 import ReactWeeklyDayPicker from "react-weekly-day-picker";
+import axios from 'axios';
+
+const API_ENDPOINT = 'http://5b23b10bb5b22d0014ef087b.mockapi.io/';
 
 Date.prototype.withoutTime = function() {
   const d = new Date(this);
@@ -13,10 +16,15 @@ class App extends React.Component{
     super(props);
     this.state = {
       selectedDays: [new Date().toString()],
+      workingHours: [],
+      unavailableDays: [],
       hours: [],
       dates: [],
       disabledHours: [],
     }
+    this.getBooked = this.getBooked.bind(this);
+    this.postBooked = this.postBooked.bind(this);
+    this.getAvailable = this.getAvailable.bind(this);
     this.onDaySelect = this.onDaySelect.bind(this);
     this.checked = this.checked.bind(this);
     this.save = this.save.bind(this);
@@ -24,12 +32,39 @@ class App extends React.Component{
   }
 
   componentDidMount(){
-    const dates = ["2018-06-15T11:00:00+03:00", "2018-06-18T13:00:00+03:00", "2018-06-18T14:00:00+03:00", "2018-06-18T16:00:00+03:00"];
+    this.getBooked();
+    this.getAvailable();
+  }
+
+  getBooked() {
     const { selectedDays } = this.state;
-    setTimeout(function () {
-      this.setState({dates});
-    }.bind(this), 0);
-    this.fillDisabledHours(dates, selectedDays);
+    axios.get(API_ENDPOINT + 'bookedslots').then((res) => {
+      if (res.status == 200) {
+        const dates = res.data.map(node => node.time);
+        this.setState({dates});
+        this.fillDisabledHours(dates, selectedDays);
+      }
+    })
+  }
+
+  postBooked(date) {
+    axios.post(API_ENDPOINT + 'bookedslots', { time: date }).then((res) => {
+      if (res.status == 200) {
+        console.log(date, '- booked')
+      }
+    })
+  }
+
+  getAvailable() {
+    const { selectedDays } = this.state;
+    axios.get(API_ENDPOINT + 'available/1').then((res) => {
+      if (res.status == 200) {
+        this.setState({
+          workingHours: res.data.hours,
+          unavailableDays: res.data.unavailableDays,
+        });
+      }
+    })
   }
 
   fillDisabledHours(dates, selectedDays) {
@@ -43,12 +78,14 @@ class App extends React.Component{
         }
       }
     }
-    this.setState({disabledHours})
+    this.setState({disabledHours, hours: []});
   }
 
   getHour(date) {
     const hour = (new Date(date)).getHours();
-    if (hour > 12) {
+    if (hour === 12) {
+      return hour  + ' p.m.';
+    } else if (hour > 12) {
       return (hour % 12) + ' p.m.';
     } else {
       return hour + ' a.m.'
@@ -57,7 +94,7 @@ class App extends React.Component{
 
   onDaySelect(days) {
     const { dates } = this.state;
-    this.setState({selectedDays: days, hours: []});
+    this.setState({selectedDays: days});
     this.fillDisabledHours(dates, days);
   }
 
@@ -76,31 +113,25 @@ class App extends React.Component{
   }
 
   save() {
-    const { dates, selectedDays, hours } = this.state;
+    const { selectedDays, hours, dates } = this.state;
     const selectedDay = new Date(selectedDays[0]);
+    const booked = [];
     for (const i in hours) {
-      let hour = hours[i].indexOf(' p.m.') > -1 ? parseInt(hours[i], 10) + 12 : parseInt(hours[i], 10);
-      selectedDay.setHours(hour, 0, 0, 0)
-      dates.push(selectedDay.toString())
+      let hour = '';
+      if (hours[i] === '12 p.m.') {
+        hour = 12;
+      } else {
+        hour = hours[i].indexOf(' p.m.') > -1 ? parseInt(hours[i], 10) + 12 : parseInt(hours[i], 10);
+      }
+      selectedDay.setHours(hour, 0, 0, 0);
+      this.postBooked(selectedDay.toString());
+      dates.push(selectedDay.toString());
     }
-    this.setState({dates});
+    this.fillDisabledHours(dates, selectedDays);
   }
 
   render() {
-    const { hours, disabledHours } = this.state;
-    const availableHours = [
-      '7 a.m.',
-      '8 a.m.',
-      '9 a.m.',
-      '10 a.m.',
-      '11 a.m.',
-      '12 a.m.',
-      '1 p.m.',
-      '2 p.m.',
-      '3 p.m.',
-      '4 p.m.',
-      '5 p.m.',
-    ];
+    const { hours, disabledHours, unavailableDays, workingHours } = this.state;
     return (
       <div>
         <h1>Pick day and time</h1>
@@ -112,7 +143,7 @@ class App extends React.Component{
             secondLineFormat={'MMM D'}
             firstLineMobileFormat={'dddd'}
             secondLineMobileFormat={'MMMM D, Y'}
-            unavailables={{ weekly: [0, 6] }}
+            unavailables={{ weekly: unavailableDays }}
             mobilView={window.innerWidth < 1024}
             beforeToday={false}
             selectDay={this.onDaySelect}
@@ -120,7 +151,7 @@ class App extends React.Component{
           />
         </div>
         <div className="btn-group btn-group-toggle" data-toggle="buttons">
-          {availableHours.map((hour) => {
+          {workingHours.map((hour) => {
             const active = hours.includes(hour);
             const disabled = disabledHours.includes(hour);
             return (
