@@ -1,0 +1,27 @@
+a.active{
+  color: #000000 !important;
+  text-decoration: underline !important;
+}
+.rwdp-DayCircle-unavailable-text {
+  display: none;
+}
+.btn {
+  font-size: 13px !important;
+}
+h1 {
+  justify-content: center;
+  display: flex;
+  margin-top: 50px;
+}
+.day-picker-wrapper {
+  margin-bottom: 20px;
+}
+.save-wrapper {
+  display: flex;
+  justify-content: center;
+}
+.save-btn {
+  font-size: 1.25em !important;
+  margin-top: 75px;
+  width: 125px;
+}
